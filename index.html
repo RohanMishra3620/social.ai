@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        @keyframes marquee {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        @keyframes pulseRing {
+            0% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 14px rgba(249, 115, 22, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+            }
+        }
+
+        .animate-marquee {
+            animation: marquee 26s linear infinite;
+        }
+
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        .float-card {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .pulse-ring {
+            animation: pulseRing 2.4s infinite;
+        }
+
+        .company {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 800;
+            color: #334155;
+            white-space: nowrap;
+            letter-spacing: 0;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(18px);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fb923c, #06b6d4 45%, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .feature-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+            border-color: rgba(14, 165, 233, 0.32);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+
+    <title>Social.AI</title>
+</head>
+
+<body class="bg-[#f7fafc] text-slate-900">
+
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-transparent transition-all duration-300">
+        <div class="container mx-auto flex items-center justify-between px-5 py-4">
+            <a href="#home" class="flex title-font font-medium items-center">
+                <span
+                    class="w-11 h-11 text-white bg-gradient-to-br from-orange-500 via-cyan-500 to-indigo-600 rounded-lg inline-flex items-center justify-center shadow-lg shadow-cyan-900/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                </span>
+                <span id="logoText" class="ml-3 text-xl text-white font-extrabold tracking-tight">Social.AI</span>
+            </a>
+
+            <button id="menuBtn"
+                class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 text-white ring-1 ring-white/20"
+                aria-label="Open menu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+            </button>
+
+            <div id="navMenu"
+                class="hidden absolute left-5 right-5 top-20 rounded-xl bg-slate-950/95 p-4 shadow-2xl md:static md:flex md:items-center md:gap-8 md:bg-transparent md:p-0 md:shadow-none">
+                <nav class="flex flex-col gap-4 md:flex-row md:items-center md:gap-7 text-base">
+                    <a href="#home" class="nav-link text-white hover:text-orange-300 transition">Home</a>
+                    <a href="#about" class="nav-link text-white hover:text-orange-300 transition">About</a>
+                    <a href="#work" class="nav-link text-white hover:text-orange-300 transition">Work</a>
+                    <a href="#solutions" class="nav-link text-white hover:text-orange-300 transition">Solutions</a>
+                    <a href="#contact" class="nav-link text-white hover:text-orange-300 transition">Contact</a>
+                </nav>
+                <a href="#contact" id="loginBtn"
+                    class="mt-5 inline-flex items-center justify-center rounded-lg bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-lg shadow-orange-900/20 transition hover:bg-orange-600 md:mt-0">
+                    Start Project
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="relative min-h-screen overflow-hidden flex items-center">
+            <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
+                <source src="Assets/videos/image1.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-slate-950/70"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-slate-950/75"></div>
+
+            <div
+                class="relative z-10 container mx-auto grid min-h-screen items-center gap-10 px-5 pt-28 pb-16 lg:grid-cols-[1.05fr_0.95fr]">
+                <div class="text-white">
+                   
+                    <h1 class="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
+                        Grow your social presence with <span class="gradient-text">smarter AI</span>.
+                    </h1>
+                    <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-200 md:text-xl">
+                        Plan campaigns, generate posts, track performance, and keep every social channel consistent from
+                        one beautiful workspace.
+                    </p>
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <a href="#solutions"
+                            class="inline-flex items-center justify-center rounded-lg bg-orange-500 px-7 py-3.5 text-base font-bold text-white shadow-xl shadow-orange-950/25 transition hover:-translate-y-0.5 hover:bg-orange-600">
+                            Explore Solutions
+                        </a>
+                        <a href="#work"
+                            class="inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition hover:bg-white/20">
+                            See Workflow
+                        </a>
+                    </div>
+                </div>
+
+
+        </section>
+
+        <section class="overflow-hidden bg-white py-16">
+            <div class="text-center mb-10 px-5">
+                <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-600">Trusted ecosystem</p>
+                <h2 class="mt-3 text-3xl font-black text-slate-950 md:text-4xl">Trusted by leading companies</h2>
+            </div>
+
+            <div class="relative overflow-hidden">
+                <div class="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-white to-transparent z-10"></div>
+                <div class="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white to-transparent z-10"></div>
+
+                <div class="flex w-max animate-marquee">
+                    <div class="flex items-center gap-20 px-10">
+                        <span class="company">Google</span>
+                        <span class="company">Microsoft</span>
+                        <span class="company">Adobe</span>
+                        <span class="company">Netflix</span>
+                        <span class="company">Spotify</span>
+                        <span class="company">OpenAI</span>
+                        <span class="company">Airbnb</span>
+                        <span class="company">Slack</span>
+                    </div>
+                    <div class="flex items-center gap-20 px-10">
+                        <span class="company">Google</span>
+                        <span class="company">Microsoft</span>
+                        <span class="company">Adobe</span>
+                        <span class="company">Netflix</span>
+                        <span class="company">Spotify</span>
+                        <span class="company">OpenAI</span>
+                        <span class="company">Airbnb</span>
+                        <span class="company">Slack</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="body-font bg-[#f7fafc]">
+            <div class="container px-5 py-24 mx-auto grid items-center gap-12 lg:grid-cols-2">
+                <div class="reveal">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">About Social.AI</p>
+                    <h2 class="mt-4 text-4xl font-black leading-tight text-slate-950 md:text-5xl">
+                        Build a complete social strategy in minutes, not days.
+                    </h2>
+                    <p class="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+                        Social.AI helps creators, agencies, and businesses turn rough ideas into polished campaigns with
+                        brand-safe captions, visuals, scheduling, and analytics.
+                    </p>
+                    <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <div class="rounded-xl border border-slate-200 bg-white p-5">
+                            <h3 class="counter title-font text-3xl font-black text-slate-950" data-target="27">0</h3>
+                            <p class="mt-1 text-sm text-slate-500">K Users</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-5">
+                            <h3 class="counter title-font text-3xl font-black text-slate-950" data-target="18">0</h3>
+                            <p class="mt-1 text-sm text-slate-500">K Subscribers</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-5">
+                            <h3 class="counter title-font text-3xl font-black text-slate-950" data-target="350">0</h3>
+                            <p class="mt-1 text-sm text-slate-500">Downloads</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-5">
+                            <h3 class="counter title-font text-3xl font-black text-slate-950" data-target="4">0</h3>
+                            <p class="mt-1 text-sm text-slate-500">Products</p>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="reveal overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-200/70">
+                    <img class="aspect-[4/3] w-full rounded-xl object-cover object-center"
+                        src="Assets/images/image1.png" alt="Social.AI campaign preview">
+                </div>
+            </div>
+        </section>
+
+        <section id="solutions" class="body-font bg-white">
+            <div class="container px-5 py-24 mx-auto">
+                <div class="reveal mx-auto mb-14 max-w-3xl text-center">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-600">Solutions</p>
+                    <h2 class="mt-4 text-4xl font-black text-slate-950 md:text-5xl">Everything your social team needs
+                    </h2>
+                    <p class="mt-5 text-lg leading-8 text-slate-600">Add structure to every channel with AI features for
+                        planning, writing, publishing, and learning from results.</p>
+                </div>
+                <div class="grid gap-5 md:grid-cols-3">
+                    <div
+                        class="feature-card reveal flex h-full flex-col rounded-2xl border border-slate-200 bg-[#f8fbff] p-8">
+                        <div
+                            class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500 text-white">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-950">Trend Intelligence</h3>
+                        <p class="mt-3 flex-grow leading-7 text-slate-600">Spot fast-moving topics and convert them into
+                            brand-ready post ideas with hooks, hashtags, and timing tips.</p>
+                        <a href="#contact" class="mt-6 inline-flex items-center font-bold text-cyan-700">Learn More
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-4 h-4 ml-2" viewBox="0 0 24 24">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div
+                        class="feature-card reveal flex h-full flex-col rounded-2xl border border-slate-200 bg-[#f8fbff] p-8">
+                        <div
+                            class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-500 text-white">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-950">Creator Workflows</h3>
+                        <p class="mt-3 flex-grow leading-7 text-slate-600">Create briefs, drafts, approvals, and
+                            platform variants so your team can move from concept to publish faster.</p>
+                        <a href="#contact" class="mt-6 inline-flex items-center font-bold text-cyan-700">Learn More
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-4 h-4 ml-2" viewBox="0 0 24 24">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div
+                        class="feature-card reveal flex h-full flex-col rounded-2xl border border-slate-200 bg-[#f8fbff] p-8">
+                        <div
+                            class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
+                                <circle cx="6" cy="6" r="3"></circle>
+                                <circle cx="6" cy="18" r="3"></circle>
+                                <path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-950">Analytics Studio</h3>
+                        <p class="mt-3 flex-grow leading-7 text-slate-600">Measure performance by audience, channel, and
+                            content type, then get AI recommendations for the next campaign.</p>
+                        <a href="#contact" class="mt-6 inline-flex items-center font-bold text-cyan-700">Learn More
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" class="w-4 h-4 ml-2" viewBox="0 0 24 24">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="work" class="bg-slate-950 py-24 text-white">
+            <div class="container mx-auto px-5">
+                <div class="reveal mb-12 max-w-2xl">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-orange-300">Workflow</p>
+                    <h2 class="mt-4 text-4xl font-black md:text-5xl">From idea to campaign in four clear steps</h2>
+                </div>
+                <div class="grid gap-5 md:grid-cols-4">
+                    <div class="reveal rounded-2xl border border-white/10 bg-white/5 p-6">
+                        <span class="text-4xl font-black text-orange-300">01</span>
+                        <h3 class="mt-5 text-lg font-bold">Describe</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">Add your audience, goal, product, and tone.</p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-white/10 bg-white/5 p-6">
+                        <span class="text-4xl font-black text-cyan-300">02</span>
+                        <h3 class="mt-5 text-lg font-bold">Generate</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">Create captions, calendars, and visual prompts.
+                        </p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-white/10 bg-white/5 p-6">
+                        <span class="text-4xl font-black text-indigo-300">03</span>
+                        <h3 class="mt-5 text-lg font-bold">Approve</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">Review suggestions and keep the brand voice
+                            tight.</p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-white/10 bg-white/5 p-6">
+                        <span class="text-4xl font-black text-emerald-300">04</span>
+                        <h3 class="mt-5 text-lg font-bold">Publish</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">Schedule content and learn from live results.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-[#f7fafc] py-24">
+            <div class="container mx-auto grid gap-8 px-5 lg:grid-cols-[0.85fr_1.15fr]">
+                <div class="reveal">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-600">Pricing</p>
+                    <h2 class="mt-4 text-4xl font-black text-slate-950 md:text-5xl">Pick the plan that fits your team
+                    </h2>
+                    <p class="mt-5 text-lg leading-8 text-slate-600">Simple starter pricing for creators, agencies, and
+                        growing brands.</p>
+                </div>
+                <div class="grid gap-5 md:grid-cols-3">
+                    <div class="reveal rounded-2xl border border-slate-200 bg-white p-7">
+                        <h3 class="text-xl font-black">Starter</h3>
+                        <p class="mt-2 text-sm text-slate-500">For solo creators</p>
+                        <p class="mt-6 text-4xl font-black">$19</p>
+                        <p class="mt-1 text-sm text-slate-500">per month</p>
+                        <a href="#contact"
+                            class="mt-6 inline-flex w-full justify-center rounded-lg border border-slate-300 px-4 py-3 font-bold text-slate-900 hover:bg-slate-50">Choose</a>
+                    </div>
+                    <div
+                        class="reveal rounded-2xl border-2 border-orange-500 bg-white p-7 shadow-2xl shadow-orange-100">
+                        <div
+                            class="mb-3 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                            Popular</div>
+                        <h3 class="text-xl font-black">Growth</h3>
+                        <p class="mt-2 text-sm text-slate-500">For active brands</p>
+                        <p class="mt-6 text-4xl font-black">$49</p>
+                        <p class="mt-1 text-sm text-slate-500">per month</p>
+                        <a href="#contact"
+                            class="mt-6 inline-flex w-full justify-center rounded-lg bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600">Choose</a>
+                    </div>
+                    <div class="reveal rounded-2xl border border-slate-200 bg-white p-7">
+                        <h3 class="text-xl font-black">Agency</h3>
+                        <p class="mt-2 text-sm text-slate-500">For client teams</p>
+                        <p class="mt-6 text-4xl font-black">$99</p>
+                        <p class="mt-1 text-sm text-slate-500">per month</p>
+                        <a href="#contact"
+                            class="mt-6 inline-flex w-full justify-center rounded-lg border border-slate-300 px-4 py-3 font-bold text-slate-900 hover:bg-slate-50">Choose</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="relative bg-white">
+            <div class="container px-5 py-24 mx-auto flex flex-wrap gap-8 lg:flex-nowrap">
+                <div
+                    class="reveal min-h-[420px] lg:w-2/3 md:w-1/2 bg-slate-900 rounded-2xl overflow-hidden p-8 flex items-end justify-start relative">
+                    <iframe width="100%" height="100%" class="absolute inset-0" frameborder="0" title="map"
+                        marginheight="0" marginwidth="0" scrolling="no"
+                        src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=Mumbai%20India+(Social.AI)&ie=UTF8&t=&z=12&iwloc=B&output=embed"
+                        style="filter: grayscale(0.25) contrast(1.05) opacity(0.58);"></iframe>
+                    <div class="relative flex flex-wrap gap-5 rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur">
+                        <div class="min-w-[220px] flex-1">
+                            <h2 class="title-font text-xs font-bold tracking-widest text-slate-950">ADDRESS</h2>
+                            <p class="mt-2 text-slate-600">Mumbai, India. Remote-friendly social intelligence studio.
+                            </p>
+                        </div>
+                        <div class="min-w-[220px] flex-1">
+                            <h2 class="title-font text-xs font-bold tracking-widest text-slate-950">EMAIL</h2>
+                            <a href="mailto:hello@social.ai" class="text-cyan-700 leading-relaxed">hello@social.ai</a>
+                            <h2 class="title-font text-xs font-bold tracking-widest text-slate-950 mt-4">PHONE</h2>
+                            <p class="leading-relaxed text-slate-600">+91 98765 43210</p>
+                        </div>
+                    </div>
+                </div>
+                <form id="contactForm"
+                    class="reveal lg:w-1/3 md:w-1/2 bg-[#f8fbff] flex flex-col w-full rounded-2xl border border-slate-200 p-8 shadow-xl shadow-slate-200/60">
+                    <h2 class="text-2xl font-black text-slate-950 mb-2">Start a project</h2>
+                    <p class="leading-relaxed mb-6 text-slate-600">Tell us what you want to grow and we will send back a
+                        campaign plan.</p>
+                    <div class="relative mb-4">
+                        <label for="name" class="leading-7 text-sm font-semibold text-slate-700">Name</label>
+                        <input type="text" id="name" name="name" required
+                            class="w-full bg-white rounded-lg border border-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 text-base outline-none text-slate-700 py-2 px-3 leading-8 transition">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="email" class="leading-7 text-sm font-semibold text-slate-700">Email</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full bg-white rounded-lg border border-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 text-base outline-none text-slate-700 py-2 px-3 leading-8 transition">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="message" class="leading-7 text-sm font-semibold text-slate-700">Message</label>
+                        <textarea id="message" name="message" required
+                            class="w-full bg-white rounded-lg border border-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 h-32 text-base outline-none text-slate-700 py-3 px-3 resize-none leading-6 transition"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-5 rounded-lg font-bold shadow-lg shadow-orange-100 transition">Send
+                        Message</button>
+                    <p id="formStatus"
+                        class="mt-4 hidden rounded-lg bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                        Thanks. Your message is ready for our team.</p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 text-slate-300">
+        <div
+            class="container px-5 py-16 mx-auto flex md:items-start md:flex-row md:flex-nowrap flex-wrap flex-col gap-10">
+            <div class="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
+                <a href="#home"
+                    class="flex title-font font-medium items-center md:justify-start justify-center text-white">
+                    <span
+                        class="w-10 h-10 text-white bg-gradient-to-br from-orange-500 via-cyan-500 to-indigo-600 rounded-lg inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </span>
+                    <span class="ml-3 text-xl font-black">Social.AI</span>
+                </a>
+                <p class="mt-4 text-sm leading-6 text-slate-400">AI-powered social planning, content creation, and
+                    performance insights for ambitious brands.</p>
+            </div>
+            <div class="flex-grow grid gap-8 text-center md:text-left sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                    <h2 class="title-font font-bold text-white tracking-widest text-sm mb-4">PLATFORM</h2>
+                    <nav class="grid gap-3">
+                        <a href="#solutions" class="hover:text-orange-300">AI Writer</a>
+                        <a href="#work" class="hover:text-orange-300">Scheduler</a>
+                        <a href="#about" class="hover:text-orange-300">Analytics</a>
+                    </nav>
+                </div>
+                <div>
+                    <h2 class="title-font font-bold text-white tracking-widest text-sm mb-4">COMPANY</h2>
+                    <nav class="grid gap-3">
+                        <a href="#about" class="hover:text-orange-300">About</a>
+                        <a href="#work" class="hover:text-orange-300">Workflow</a>
+                        <a href="#contact" class="hover:text-orange-300">Contact</a>
+                    </nav>
+                </div>
+                <div>
+                    <h2 class="title-font font-bold text-white tracking-widest text-sm mb-4">RESOURCES</h2>
+                    <nav class="grid gap-3">
+                        <a href="#solutions" class="hover:text-orange-300">Templates</a>
+                        <a href="#solutions" class="hover:text-orange-300">Reports</a>
+                        <a href="#solutions" class="hover:text-orange-300">Brand Voice</a>
+                    </nav>
+                </div>
+                <div>
+                    <h2 class="title-font font-bold text-white tracking-widest text-sm mb-4">SOCIAL</h2>
+                    <nav class="grid gap-3">
+                        <a href="#" class="hover:text-orange-300">Instagram</a>
+                        <a href="#" class="hover:text-orange-300">LinkedIn</a>
+                        <a href="#" class="hover:text-orange-300">Twitter</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/10">
+            <div class="container mx-auto py-5 px-5 flex flex-wrap flex-col sm:flex-row items-center gap-3">
+                <p class="text-slate-400 text-sm text-center sm:text-left">Copyright 2026 Social.AI. All rights
+                    reserved.</p>
+                <span class="inline-flex sm:ml-auto justify-center sm:justify-start gap-4">
+                    <a class="text-slate-400 hover:text-white" aria-label="Facebook">
+                        <svg fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
+                            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                        </svg>
+                    </a>
+                    <a class="text-slate-400 hover:text-white" aria-label="Twitter">
+                        <svg fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
+                            <path
+                                d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a class="text-slate-400 hover:text-white" aria-label="Instagram">
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"></path>
+                        </svg>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const navbar = document.getElementById("navbar");
+        const logoText = document.getElementById("logoText");
+        const navLinks = document.querySelectorAll(".nav-link");
+        const navMenu = document.getElementById("navMenu");
+        const menuBtn = document.getElementById("menuBtn");
+        const form = document.getElementById("contactForm");
+        const formStatus = document.getElementById("formStatus");
+
+        function updateNavbar() {
+            if (window.scrollY > 50) {
+                navbar.classList.remove("bg-transparent");
+                navbar.classList.add("bg-slate-950/95", "shadow-lg", "backdrop-blur");
+                logoText.classList.add("text-white");
+                navLinks.forEach(link => link.classList.add("text-white"));
+            } else {
+                navbar.classList.remove("bg-slate-950/95", "shadow-lg", "backdrop-blur");
+                navbar.classList.add("bg-transparent");
+                logoText.classList.add("text-white");
+                navLinks.forEach(link => link.classList.add("text-white"));
+            }
+        }
+
+        menuBtn.addEventListener("click", () => {
+            navMenu.classList.toggle("hidden");
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth < 768) {
+                    navMenu.classList.add("hidden");
+                }
+            });
+        });
+
+        window.addEventListener("scroll", updateNavbar);
+        updateNavbar();
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("show");
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.16 });
+
+        document.querySelectorAll(".reveal").forEach(item => revealObserver.observe(item));
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const counter = entry.target;
+                const target = Number(counter.dataset.target);
+                let current = 0;
+                const step = Math.max(1, Math.ceil(target / 40));
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    counter.textContent = target >= 100 ? current : current;
+                }, 28);
+                counterObserver.unobserve(counter);
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll(".counter").forEach(counter => counterObserver.observe(counter));
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            formStatus.classList.remove("hidden");
+            form.reset();
+        });
+    </script>
+</body>
+
+</html>
