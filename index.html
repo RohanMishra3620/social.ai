@@ -6,9 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <style>
         :root {
             color-scheme: light;
+            --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+            --mouse-x: 50%;
+            --mouse-y: 50%;
         }
 
         html {
@@ -112,53 +117,391 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-120%);
+            }
+
+            100% {
+                transform: translateX(120%);
+            }
+        }
+
+        @keyframes softDrift {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate3d(18px, -22px, 0) scale(1.04);
+            }
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translate3d(0, 12px, 0);
+                opacity: 0;
+            }
+
+            20%, 80% {
+                opacity: 0.55;
+            }
+
+            100% {
+                transform: translate3d(var(--particle-x), -90px, 0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes iconBreathe {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate3d(0, -4px, 0) rotate(2deg);
+            }
+        }
+
+        #scrollProgress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 70;
+            width: 100%;
+            height: 3px;
+            transform: scaleX(0);
+            transform-origin: left;
+            background: linear-gradient(90deg, #fb923c, #06b6d4, #6366f1);
+            box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+            will-change: transform;
+        }
+
+        .page-ready .premium-enter {
+            transition-delay: calc(var(--stagger, 0) * 80ms);
+        }
+
+        .premium-enter {
+            opacity: 0;
+            transform: translate3d(0, 28px, 0) scale(0.985);
+            transition: opacity 0.9s var(--ease-premium), transform 0.9s var(--ease-premium);
+            will-change: opacity, transform;
+        }
+
+        .premium-enter.show {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        .magnetic-action {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0) scale(1);
+            transition: transform 0.35s var(--ease-premium), box-shadow 0.35s var(--ease-premium), filter 0.35s var(--ease-premium);
+            will-change: transform;
+        }
+
+        .magnetic-action::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+            background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.32), transparent 80%);
+            transform: translateX(-120%);
+            transition: transform 0.7s var(--ease-premium);
+        }
+
+        .magnetic-action:hover {
+            transform: translate3d(var(--magnetic-x, 0), calc(var(--magnetic-y, 0) - 3px), 0) scale(1.018);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16), 0 0 28px rgba(249, 115, 22, 0.16);
+            filter: saturate(1.08);
+        }
+
+        .magnetic-action:hover::before {
+            transform: translateX(120%);
+        }
+
+        .ripple-dot {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.42);
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.7s var(--ease-premium);
+        }
+
+        @keyframes ripple {
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(14);
+            }
+        }
+
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);
+            transition: transform 0.45s var(--ease-premium), box-shadow 0.45s var(--ease-premium), filter 0.45s var(--ease-premium);
+            will-change: transform;
+        }
+
+        .tilt-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.34), transparent 34%);
+            transition: opacity 0.35s var(--ease-premium);
+        }
+
+        .tilt-card:hover::after {
+            opacity: 1;
+        }
+
+        .tilt-card:hover {
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
+            filter: saturate(1.04);
+        }
+
+        .depth-child,
+        .tilt-card > svg,
+        .tilt-card h2,
+        .tilt-card h3,
+        .tilt-card span,
+        .tilt-card a,
+        .tilt-card button {
+            transform: translateZ(18px);
+        }
+
+        .premium-image {
+            transform: scale(1);
+            transition: transform 1.2s var(--ease-premium), filter 0.9s var(--ease-premium);
+            will-change: transform;
+        }
+
+        .premium-image:hover {
+            transform: scale(1.035);
+            filter: saturate(1.06) contrast(1.02);
+        }
+
+        .parallax-wrap {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .ambient-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .ambient-light {
+            position: absolute;
+            width: 38vw;
+            min-width: 260px;
+            height: 38vw;
+            min-height: 260px;
+            opacity: 0.24;
+            filter: blur(34px);
+            transform: translate3d(0, 0, 0);
+            animation: softDrift 9s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        .ambient-light.one {
+            top: 8%;
+            left: -10%;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.85), rgba(6, 182, 212, 0.25));
+        }
+
+        .ambient-light.two {
+            right: -12%;
+            bottom: 8%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.72), rgba(6, 182, 212, 0.3));
+            animation-delay: -3s;
+        }
+
+        .particle-field {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+            animation: particleFloat var(--particle-duration, 8s) linear infinite;
+            animation-delay: var(--particle-delay, 0s);
+            will-change: transform, opacity;
+        }
+
+        .hero-depth {
+            transform-style: preserve-3d;
+            transition: transform 0.25s ease-out;
+            will-change: transform;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -6px;
+            height: 2px;
+            border-radius: 999px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.35s var(--ease-premium);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .micro-icon svg,
+        .micro-icon > svg {
+            animation: iconBreathe 4.5s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .shimmer-ready {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer-ready::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.22), transparent 70%);
+            transform: translateX(-120%);
+            animation: shimmer 2.6s ease-in-out 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.001ms !important;
+            }
+
+            .premium-enter,
+            .reveal {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
     </style>
 
     <title>Social.AI</title>
 </head>
 
 <body class="bg-[#f7fafc] text-slate-900">
+    <div id="scrollProgress" aria-hidden="true"></div>
 
-    <header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-transparent transition-all duration-300">
-        <div class="container mx-auto flex items-center justify-between px-5 py-4">
-            <a href="#home" class="flex title-font font-medium items-center">
-                <span
-                    class="w-11 h-11 text-white bg-gradient-to-br from-orange-500 via-cyan-500 to-indigo-600 rounded-lg inline-flex items-center justify-center shadow-lg shadow-cyan-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="2" class="w-6 h-6" viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                        <path d="M2 17l10 5 10-5"></path>
-                        <path d="M2 12l10 5 10-5"></path>
-                    </svg>
-                </span>
-                <span id="logoText" class="ml-3 text-xl text-white font-extrabold tracking-tight">Social.AI</span>
-            </a>
+   <header id="navbar"
+    class="fixed top-0 left-0 w-full z-50 bg-transparent transition-all duration-300">
 
-            <button id="menuBtn"
-                class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 text-white ring-1 ring-white/20"
-                aria-label="Open menu">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16" />
+    <div class="container mx-auto flex items-center justify-between px-5 py-4">
+
+        <!-- Logo -->
+        <a href="#home" class="flex items-center font-medium">
+            <span
+                class="w-11 h-11 text-white bg-gradient-to-br from-orange-500 via-cyan-500 to-indigo-600 rounded-lg inline-flex items-center justify-center shadow-lg shadow-cyan-900/20">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
+                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    class="w-6 h-6" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
                 </svg>
-            </button>
+            </span>
 
-            <div id="navMenu"
-                class="hidden absolute left-5 right-5 top-20 rounded-xl bg-slate-950/95 p-4 shadow-2xl md:static md:flex md:items-center md:gap-8 md:bg-transparent md:p-0 md:shadow-none">
-                <nav class="flex flex-col gap-4 md:flex-row md:items-center md:gap-7 text-base">
-                    <a href="#home" class="nav-link text-white hover:text-orange-300 transition">Home</a>
-                    <a href="#about" class="nav-link text-white hover:text-orange-300 transition">About</a>
-                    <a href="#work" class="nav-link text-white hover:text-orange-300 transition">Work</a>
-                    <a href="#solutions" class="nav-link text-white hover:text-orange-300 transition">Solutions</a>
-                    <a href="#contact" class="nav-link text-white hover:text-orange-300 transition">Contact</a>
-                </nav>
-                <a href="#contact" id="loginBtn"
-                    class="mt-5 inline-flex items-center justify-center rounded-lg bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-lg shadow-orange-900/20 transition hover:bg-orange-600 md:mt-0">
+            <span id="logoText"
+                class="ml-3 text-xl text-white font-extrabold tracking-tight">
+                Social.AI
+            </span>
+        </a>
+
+        <!-- Mobile Menu Button -->
+        <button id="menuBtn"
+            class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 text-white ring-1 ring-white/20"
+            aria-label="Open Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+        </button>
+
+        <!-- Navigation -->
+        <div id="navMenu"
+            class="hidden absolute top-full left-0 w-full bg-slate-900 md:bg-transparent md:static md:flex md:w-auto md:items-center md:space-x-8">
+
+            <nav
+                class="flex flex-col md:flex-row md:items-center gap-4 p-5 md:p-0">
+
+                <a href="#home"
+                    class="text-white hover:text-orange-300 transition">
+                    Home
+                </a>
+
+                <a href="#about"
+                    class="text-white hover:text-orange-300 transition">
+                    About
+                </a>
+
+                <a href="#work"
+                    class="text-white hover:text-orange-300 transition">
+                    Work
+                </a>
+
+                <a href="#solutions"
+                    class="text-white hover:text-orange-300 transition">
+                    Solutions
+                </a>
+
+                <a href="#contact"
+                    class="text-white hover:text-orange-300 transition">
+                    Contact
+                </a>
+
+                <a href="#contact"
+                    class="inline-flex items-center justify-center rounded-lg bg-orange-500 px-5 py-2.5 font-semibold text-white hover:bg-orange-600 transition">
                     Start Project
                 </a>
-            </div>
+
+            </nav>
+
         </div>
-    </header>
+
+    </div>
+
+</header>
 
     <main>
         <section id="home" class="relative min-h-screen overflow-hidden flex items-center">
@@ -167,9 +510,14 @@
             </video>
             <div class="absolute inset-0 bg-slate-950/70"></div>
             <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-slate-950/75"></div>
+            <div class="ambient-layer" aria-hidden="true">
+                <span class="ambient-light one"></span>
+                <span class="ambient-light two"></span>
+            </div>
+            <div id="particleField" class="particle-field" aria-hidden="true"></div>
 
             <div
-                class="relative z-10 container mx-auto grid min-h-screen items-center gap-10 px-5 pt-28 pb-16 lg:grid-cols-[1.05fr_0.95fr]">
+                class="hero-depth relative z-10 container mx-auto grid min-h-screen items-center gap-10 px-5 pt-28 pb-16 lg:grid-cols-[1.05fr_0.95fr]">
                 <div class="text-white">
                    
                     <h1 class="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
@@ -190,7 +538,7 @@
                         </a>
                     </div>
                 </div>
-
+            </div>
 
         </section>
 
@@ -340,7 +688,82 @@
                 </div>
             </div>
         </section>
+<section class="py-24">
 
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl font-bold text-slate-900">
+                Services Designed for Growth
+            </h2>
+            <p class="text-xl text-gray-600 mt-6 max-w-3xl mx-auto leading-relaxed">
+                Data-driven advertising solutions focused on maximizing efficiency
+                and generating qualified business leads.
+            </p>
+
+        </div>
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+         <div>
+                <img src="Assets/images/image2.png"  class="rounded-3xl shadow-xl w-full h-[400px] object-cover"></div>
+            <div>
+
+                <h3 class="text-5xl font-bold text-slate-900 leading-tight">
+                    Strategic Ad Campaigns
+                </h3>
+
+                <p class="text-gray-600 text-xl mt-8 leading-relaxed">
+
+                    High-performance Google Ads, Meta Ads,
+                    and Bing campaigns optimized for improved
+                    conversions and competitive cost per acquisition.
+
+                </p>
+
+                <button
+                    class="mt-10 px-8 py-4 border border-blue-300 rounded-xl text-lg font-semibold hover:bg-blue-600 hover:text-white transition flex items-center gap-4">
+
+                    Learn More
+
+                    <span class="text-2xl">&rarr;</span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        
+            <div>
+                     <h3 class="text-5xl font-bold text-slate-900 leading-tight">
+                    Strategic Ad Campaigns
+                </h3>
+
+                <p class="text-gray-600 text-xl mt-8 leading-relaxed">
+
+                    High-performance Google Ads, Meta Ads,
+                    and Bing campaigns optimized for improved
+                    conversions and competitive cost per acquisition.
+
+                </p>
+
+                <button
+                    class="mt-10 px-8 py-4 border border-blue-300 rounded-xl text-lg font-semibold hover:bg-blue-600 hover:text-white transition flex items-center gap-4">
+
+                    Learn More
+
+                    <span class="text-2xl">&rarr;</span>
+
+                </button>
+
+            </div>
+ <div>
+                <img src="Assets/images/image3.png"  class="rounded-3xl shadow-xl w-full h-[400px] object-cover"></div>
+        </div>
+
+    </div>
+
+</section>
         <section id="work" class="bg-slate-950 py-24 text-white">
             <div class="container mx-auto px-5">
                 <div class="reveal mb-12 max-w-2xl">
@@ -416,7 +839,19 @@
                 </div>
             </div>
         </section>
-
+<section class="text-gray-600 body-font">
+  <div class="container px-5 py-24 mx-auto">
+    <div class="xl:w-1/2 lg:w-3/4 w-full mx-auto text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="inline-block w-8 h-8 text-gray-400 mb-8" viewBox="0 0 975.036 975.036">
+        <path d="M925.036 57.197h-304c-27.6 0-50 22.4-50 50v304c0 27.601 22.4 50 50 50h145.5c-1.9 79.601-20.4 143.3-55.4 191.2-27.6 37.8-69.399 69.1-125.3 93.8-25.7 11.3-36.8 41.7-24.8 67.101l36 76c11.6 24.399 40.3 35.1 65.1 24.399 66.2-28.6 122.101-64.8 167.7-108.8 55.601-53.7 93.7-114.3 114.3-181.9 20.601-67.6 30.9-159.8 30.9-276.8v-239c0-27.599-22.401-50-50-50zM106.036 913.497c65.4-28.5 121-64.699 166.9-108.6 56.1-53.7 94.4-114.1 115-181.2 20.6-67.1 30.899-159.6 30.899-277.5v-239c0-27.6-22.399-50-50-50h-304c-27.6 0-50 22.4-50 50v304c0 27.601 22.4 50 50 50h145.5c-1.9 79.601-20.4 143.3-55.4 191.2-27.6 37.8-69.4 69.1-125.3 93.8-25.7 11.3-36.8 41.7-24.8 67.101l35.9 75.8c11.601 24.399 40.501 35.2 65.301 24.399z"></path>
+      </svg>
+      <p class="leading-relaxed text-lg">Edison bulb retro cloud bread echo park, helvetica stumptown taiyaki taxidermy 90's cronut +1 kinfolk. Single-origin coffee ennui shaman taiyaki vape DIY tote bag drinking vinegar cronut adaptogen squid fanny pack vaporware. Man bun next level coloring book skateboard four loko knausgaard. Kitsch keffiyeh master cleanse direct trade indigo juice before they sold out gentrify plaid gastropub normcore XOXO 90's pickled cindigo jean shorts. Slow-carb next level shoindigoitch ethical authentic, yr scenester sriracha forage franzen organic drinking vinegar.</p>
+      <span class="inline-block h-1 w-10 rounded bg-indigo-500 mt-8 mb-6"></span>
+      <h2 class="text-gray-900 font-medium title-font tracking-wider text-sm">HOLDEN CAULFIELD</h2>
+      <p class="text-gray-500">Senior Product Designer</p>
+    </div>
+  </div>
+</section>
         <section id="contact" class="relative bg-white">
             <div class="container px-5 py-24 mx-auto flex flex-wrap gap-8 lg:flex-nowrap">
                 <div
@@ -562,6 +997,8 @@
         const menuBtn = document.getElementById("menuBtn");
         const form = document.getElementById("contactForm");
         const formStatus = document.getElementById("formStatus");
+        const scrollProgress = document.getElementById("scrollProgress");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         function updateNavbar() {
             if (window.scrollY > 50) {
@@ -577,6 +1014,25 @@
             }
         }
 
+        function updateScrollProgress() {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+            scrollProgress.style.transform = `scaleX(${progress})`;
+        }
+
+        function setActiveNavLink() {
+            const sectionIds = ["home", "about", "solutions", "work", "contact"];
+            const current = sectionIds
+                .map(id => document.getElementById(id))
+                .filter(Boolean)
+                .reverse()
+                .find(section => section.getBoundingClientRect().top <= 120);
+
+            navLinks.forEach(link => {
+                link.classList.toggle("active", current && link.getAttribute("href") === `#${current.id}`);
+            });
+        }
+
         menuBtn.addEventListener("click", () => {
             navMenu.classList.toggle("hidden");
         });
@@ -589,8 +1045,53 @@
             });
         });
 
-        window.addEventListener("scroll", updateNavbar);
+        window.addEventListener("scroll", () => {
+            updateNavbar();
+            updateScrollProgress();
+            setActiveNavLink();
+        }, { passive: true });
         updateNavbar();
+        updateScrollProgress();
+        setActiveNavLink();
+
+        document.body.classList.add("page-ready");
+
+        const enterTargets = [
+            ...document.querySelectorAll("section > .container, section > .max-w-7xl, footer .container"),
+            ...document.querySelectorAll(".feature-card, #work .grid > div, .grid > .rounded-2xl, form, iframe")
+        ];
+
+        enterTargets.forEach((item, index) => {
+            item.classList.add("premium-enter");
+            item.style.setProperty("--stagger", index % 6);
+        });
+
+        const interactiveCards = document.querySelectorAll(
+            ".feature-card, .rounded-2xl.border, .rounded-xl.border, form, #work .grid > div, .shadow-xl, .shadow-2xl"
+        );
+
+        interactiveCards.forEach(card => {
+            card.classList.add("tilt-card");
+            if (getComputedStyle(card).position === "static") {
+                card.style.position = "relative";
+            }
+        });
+
+        document.querySelectorAll("button, a.inline-flex, footer a, .feature-card a").forEach(action => {
+            action.classList.add("magnetic-action");
+        });
+
+        document.querySelectorAll(".feature-card div:first-child, footer span, header span:first-child").forEach(icon => {
+            icon.classList.add("micro-icon");
+        });
+
+        document.querySelectorAll("img").forEach(image => {
+            image.classList.add("premium-image");
+            const parent = image.parentElement;
+            if (parent) {
+                parent.classList.add("parallax-wrap", "shimmer-ready");
+            }
+        });
 
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -601,7 +1102,7 @@
             });
         }, { threshold: 0.16 });
 
-        document.querySelectorAll(".reveal").forEach(item => revealObserver.observe(item));
+        document.querySelectorAll(".reveal, .premium-enter").forEach(item => revealObserver.observe(item));
 
         const counterObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -609,26 +1110,149 @@
                 const counter = entry.target;
                 const target = Number(counter.dataset.target);
                 let current = 0;
-                const step = Math.max(1, Math.ceil(target / 40));
+                const step = Math.max(1, Math.ceil(target / 48));
                 const timer = setInterval(() => {
                     current += step;
                     if (current >= target) {
                         current = target;
                         clearInterval(timer);
                     }
-                    counter.textContent = target >= 100 ? current : current;
-                }, 28);
+                    counter.textContent = current;
+                }, reduceMotion ? 1 : 24);
                 counterObserver.unobserve(counter);
             });
         }, { threshold: 0.5 });
 
         document.querySelectorAll(".counter").forEach(counter => counterObserver.observe(counter));
 
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            formStatus.classList.remove("hidden");
-            form.reset();
+        if (!reduceMotion) {
+            const particleField = document.getElementById("particleField");
+            if (particleField) {
+                for (let index = 0; index < 28; index += 1) {
+                    const particle = document.createElement("span");
+                    particle.className = "particle";
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${35 + Math.random() * 60}%`;
+                    particle.style.setProperty("--particle-x", `${Math.random() * 80 - 40}px`);
+                    particle.style.setProperty("--particle-duration", `${6 + Math.random() * 7}s`);
+                    particle.style.setProperty("--particle-delay", `${Math.random() * 7}s`);
+                    particleField.appendChild(particle);
+                }
+            }
+
+            const hero = document.getElementById("home");
+            const heroDepth = document.querySelector(".hero-depth");
+            if (hero && heroDepth) {
+                hero.addEventListener("mousemove", (event) => {
+                    const bounds = hero.getBoundingClientRect();
+                    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+                    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+                    heroDepth.style.transform = `perspective(1200px) rotateX(${-y * 2.5}deg) rotateY(${x * 3.5}deg) translate3d(${x * 8}px, ${y * 8}px, 0)`;
+                });
+
+                hero.addEventListener("mouseleave", () => {
+                    heroDepth.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0)";
+                });
+            }
+
+            let tiltFrame = null;
+            interactiveCards.forEach(card => {
+                card.addEventListener("mousemove", (event) => {
+                    if (window.innerWidth < 768) return;
+                    const bounds = card.getBoundingClientRect();
+                    const x = event.clientX - bounds.left;
+                    const y = event.clientY - bounds.top;
+                    const rotateX = ((y / bounds.height) - 0.5) * -8;
+                    const rotateY = ((x / bounds.width) - 0.5) * 8;
+                    card.style.setProperty("--mouse-x", `${x}px`);
+                    card.style.setProperty("--mouse-y", `${y}px`);
+
+                    cancelAnimationFrame(tiltFrame);
+                    tiltFrame = requestAnimationFrame(() => {
+                        card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+                    });
+                });
+
+                card.addEventListener("mouseleave", () => {
+                    card.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)";
+                });
+
+                card.addEventListener("pointerdown", () => {
+                    card.style.transform += " scale(0.992)";
+                });
+            });
+
+            document.querySelectorAll(".magnetic-action").forEach(action => {
+                action.addEventListener("mousemove", (event) => {
+                    const bounds = action.getBoundingClientRect();
+                    const x = (event.clientX - bounds.left - bounds.width / 2) * 0.08;
+                    const y = (event.clientY - bounds.top - bounds.height / 2) * 0.08;
+                    action.style.setProperty("--magnetic-x", `${x}px`);
+                    action.style.setProperty("--magnetic-y", `${y}px`);
+                });
+
+                action.addEventListener("mouseleave", () => {
+                    action.style.setProperty("--magnetic-x", "0px");
+                    action.style.setProperty("--magnetic-y", "0px");
+                });
+
+                action.addEventListener("click", (event) => {
+                    const bounds = action.getBoundingClientRect();
+                    const ripple = document.createElement("span");
+                    ripple.className = "ripple-dot";
+                    ripple.style.left = `${event.clientX - bounds.left}px`;
+                    ripple.style.top = `${event.clientY - bounds.top}px`;
+                    action.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 720);
+                });
+            });
+
+            window.addEventListener("scroll", () => {
+                const offset = window.scrollY * 0.025;
+                document.querySelectorAll(".parallax-wrap").forEach((wrap, index) => {
+                    wrap.style.transform = `perspective(1000px) translate3d(0, ${Math.sin(offset + index) * 5}px, 0)`;
+                });
+            }, { passive: true });
+        }
+
+        window.addEventListener("load", () => {
+            if (window.gsap && window.ScrollTrigger && !reduceMotion) {
+                gsap.registerPlugin(ScrollTrigger);
+                gsap.fromTo("h1, h2, h3, p, .company",
+                    { y: 18, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.8,
+                        ease: "power3.out",
+                        stagger: 0.025,
+                        scrollTrigger: {
+                            trigger: "main",
+                            start: "top 90%",
+                            toggleActions: "play none none none"
+                        }
+                    }
+                );
+
+                gsap.to(".ambient-light", {
+                    xPercent: 8,
+                    yPercent: -6,
+                    duration: 5,
+                    ease: "sine.inOut",
+                    yoyo: true,
+                    repeat: -1,
+                    stagger: 0.8
+                });
+            }
         });
+
+        if (form) {
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                formStatus.classList.remove("hidden");
+                form.reset();
+            });
+        }
     </script>
 </body>
 
